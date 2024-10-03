@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark Mode Stopwatch</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* Dark mode colors */
+    :root {
+      --md-primary: #bb86fc;
+      --md-on-primary: #ffffff;
+      --md-background: #121212;
+      --md-surface: #1e1e1e;
+      --md-on-surface: #ffffff;
+      --md-secondary: #03dac6; /* Secondary color */
+      --md-on-secondary: #000000; /* Text color for secondary button */
+      --md-shadow: rgba(0, 0, 0, 0.7);
+    }
+
+    /* General body and layout */
+    body {
+      font-family: 'Roboto', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: var(--md-background);
+      margin: 0;
+      transition: background-color 0.5s;
+    }
+
+    .stopwatch {
+      text-align: center;
+      padding: 24px;
+      border-radius: 24px;
+      width: 300px;
+      background-color: var(--md-surface);
+      box-shadow: 0px 4px 46px var(#9e47f0);
+    }
+
+    .time-display {
+      font-size: 48px;
+      margin-bottom: 24px;
+      color: var(--md-on-surface);
+      font-weight: 500;
+    }
+
+    .seconds {
+      display: inline; /* Keep seconds inline without transition */
+    }
+
+    .btn {
+      background-color: var(--md-primary);
+      color: var(--md-on-primary);
+      padding: 12px 24px;
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      border-radius: 24px;
+      cursor: pointer;
+      transition: background-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.4);
+      outline: none;
+      display: inline-block;
+    }
+
+    .btn:active {
+      background-color: #7f39fb;
+    }
+
+
+    /* Hover effect for primary button */
+    .btn:hover {
+      background-color: #9e47f0; /* Lighter shade for hover */
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Slightly elevated */
+    }
+
+    /* Secondary button styles */
+    .reset-btn {
+      background-color: var(--md-surface); /* Match the background */
+      color: var(--md-secondary);
+      margin-left: 10px; /* Add some space from the start/stop button */
+      border: 1px solid var(--md-secondary); /* Outline */
+    }
+
+    .reset-btn:hover {
+      background-color: var(--md-secondary); /* Change color on hover */
+      color: var(--md-on-secondary); /* Change text color on hover */
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.4); /* Slightly elevated */
+    }
+
+    
+    /* Dark mode styles */
+    body.dark-mode {
+      background-color: #ffffff;
+    }
+
+    .stopwatch.dark-mode {
+      background-color: #f5f5f5;
+    }
+
+    .time-display.dark-mode {
+      color: #000000;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stopwatch">
+    <div class="time-display">
+      <span id="minutes">25</span>:<span id="seconds" class="seconds">00</span>
+    </div>
+    <button id="startStopBtn" class="btn">Start</button>
+    <button id="resetBtn" class="btn reset-btn">Reset</button>
+  </div>
+
+  <!-- Audio element for button click sound -->
+  <audio id="clickSound" src="click-sound.mp3"></audio>
+
+  <script>
+    let startTime = 25 * 60; // 25 minutes in seconds
+    let currentTime = startTime;
+    let timerRunning = false;
+    let interval;
+
+    const minutesDisplay = document.getElementById('minutes');
+    const secondsDisplay = document.getElementById('seconds');
+    const startStopBtn = document.getElementById('startStopBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const clickSound = document.getElementById('clickSound');
+
+    // Update the displayed time and the tab title
+    function updateTimeDisplay() {
+      const minutes = Math.floor(currentTime / 60);
+      const seconds = currentTime % 60;
+
+      minutesDisplay.textContent = minutes.toString().padStart(2, '0');
+      secondsDisplay.textContent = seconds.toString().padStart(2, '0');
+      
+      document.title = `Time: ${minutesDisplay.textContent}:${secondsDisplay.textContent}`; // Update the browser tab title
+    }
+
+    // Play sound on button click
+    function playClickSound() {
+      clickSound.play();
+    }
+
+    // Start or stop the timer
+    startStopBtn.addEventListener('click', function() {
+      playClickSound(); // Play sound when button is clicked
+      if (!timerRunning) {
+        startStopBtn.textContent = 'Stop';
+        timerRunning = true;
+        interval = setInterval(function() {
+          if (currentTime > 0) {
+            currentTime--;
+            updateTimeDisplay();
+          } else {
+            clearInterval(interval);
+            timerRunning = false;
+            startStopBtn.textContent = 'Start';
+          }
+        }, 1000);
+      } else {
+        clearInterval(interval);
+        timerRunning = false;
+        startStopBtn.textContent = 'Start';
+      }
+    });
+
+    // Reset the timer
+    resetBtn.addEventListener('click', function() {
+      clearInterval(interval);
+      timerRunning = false;
+      startStopBtn.textContent = 'Start';
+      currentTime = startTime;
+      updateTimeDisplay();
+    });
+
+    // Initialize the display
+    updateTimeDisplay();
+  </script>
+
+</body>
+</html>
